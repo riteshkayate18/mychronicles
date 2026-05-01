@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyChronicles Admin - Command Center</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --admin-bg: #0f172a;
+            --admin-card: #1e293b;
+            --admin-border: #334155;
+            --admin-text: #f8fafc;
+        }
+        body.admin-body {
+            background: var(--admin-bg);
+            color: var(--admin-text);
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .admin-sidebar {
+            width: 260px;
+            height: 100vh;
+            background: var(--admin-card);
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--admin-border);
+            padding: 2rem 0;
+        }
+        .admin-main {
+            margin-left: 260px;
+            padding: 3rem;
+        }
+        .admin-logo {
+            padding: 0 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .admin-nav {
+            list-style: none;
+            padding: 0;
+        }
+        .admin-nav-item {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .admin-nav-item:hover, .admin-nav-item.active {
+            color: var(--primary);
+            background: rgba(0, 243, 255, 0.05);
+            border-right: 3px solid var(--primary);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .order-table-container {
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 1.2rem 1.5rem;
+            background: rgba(255,255,255,0.02);
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--admin-border);
+        }
+        td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--admin-border);
+            font-size: 0.95rem;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .status-printing { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .status-shipped { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        
+        .view-btn {
+            background: var(--admin-border);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .view-btn:hover {
+            background: var(--primary);
+        }
+
+        /* Order Preview Modal */
+        #order-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: var(--admin-bg);
+            width: 90%;
+            height: 90%;
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <div class="admin-sidebar">
+        <div class="admin-logo">
+            <img src="logo_mychronicle.png" style="height: 32px;">
+            <span>Command Center</span>
+        </div>
+        <nav>
+            <a class="admin-nav-item active"><i class="ph ph-shopping-bag"></i> Orders</a>
+            <a class="admin-nav-item"><i class="ph ph-users"></i> Customers</a>
+            <a class="admin-nav-item"><i class="ph ph-image"></i> Assets</a>
+            <a class="admin-nav-item"><i class="ph ph-gear"></i> Settings</a>
+        </nav>
+    </div>
+
+    <main class="admin-main">
+        <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin:0; font-family: 'Ubuntu', sans-serif;">Orders Management</h1>
+            <div id="admin-user-info" style="display:flex; align-items:center; gap:10px; color:#94a3b8;">
+                <span id="admin-email">Loading...</span>
+                <div id="user-menu-root"></div>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val" id="total-orders">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="pending-orders">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="printing-orders">0</div>
+                <div class="stat-label">In Print</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="revenue">₹0</div>
+                <div class="stat-label">Revenue Est.</div>
+            </div>
+        </div>
+
+        <div class="order-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Project Title</th>
+                        <th>Format</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="order-list">
+                    <!-- Orders will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Preview Modal -->
+    <div id="order-modal">
+        <div class="modal-content">
+            <button onclick="document.getElementById('order-modal').style.display='none'" style="position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
+            <h2 id="modal-title">Order Preview</h2>
+            <div id="preview-area" style="flex:1; overflow:auto; padding: 2rem; background: #fff; border-radius: 12px; margin-top: 1rem;">
+                <!-- Design snapshot will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+    <script type="module" src="login-ui.js"></script>
+</body>
+</html>

@@ -23,14 +23,16 @@
             <li><a href="index.html#about">About Us</a></li>
             <li><a href="index.html#help">Help</a></li>
         </ul>
-        <div class="nav-icons">
+        <div class="nav-icons" style="display:flex; align-items:center; gap:1.5rem;">
             <span class="icon search-icon"><i class="ph ph-magnifying-glass"></i></span>
-            <span class="icon account-icon"><i class="ph ph-user"></i></span>
-            <span class="icon cart-icon">
-                <i class="ph ph-shopping-cart"></i><span class="cart-badge" id="cart-badge">0</span>
+            <div id="user-menu-root"><span class="icon account-icon" style="cursor:pointer;"><i class="ph ph-user"></i></span></div>
+            <span class="icon cart-icon" style="position:relative;">
+                <i class="ph ph-shopping-cart"></i><span class="cart-badge" id="cart-badge" style="position:absolute; top:-8px; right:-8px; background:var(--primary); color:white; font-size:0.7rem; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;">0</span>
             </span>
         </div>
     </nav>
+
+    <script type="module" src="login-ui.js"></script>
 
     <!-- Editor Main layout -->
     <div class="editor-container">

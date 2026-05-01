@@ -1,3 +1,6 @@
+import { auth, db } from './firebase-config.js';
+import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 document.addEventListener('DOMContentLoaded', () => {
     const uploadBtn = document.getElementById('upload-btn');
     const fileArea = document.getElementById('drag-area');
@@ -77,6 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
             this.present = newState;
             this.future = []; 
             this.updateButtons();
+            
+            // Trigger Cloud Auto-Save
+            triggerCloudSave();
         },
 
         undo() {
@@ -2017,5 +2023,145 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         });
     }
+
+    // --- Cloud Sync Manager ---
+    let saveTimeout = null;
+    let currentProjectId = urlParams.get('id') || `project_${Date.now()}`;
+    
+    // Update URL without refresh if it's a new project
+    if (!urlParams.get('id')) {
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?pages=${totalPages}&id=${currentProjectId}`;
+        window.history.pushState({path:newUrl},'',newUrl);
+    }
+
+    const setSaveStatus = (status) => {
+        const statusIcon = document.getElementById('save-status-icon');
+        const statusText = document.getElementById('save-status-text');
+        if (!statusIcon || !statusText) return;
+
+        if (status === 'saving') {
+            statusIcon.className = 'ph ph-cloud-arrow-up';
+            statusIcon.style.animation = 'pulse 1s infinite';
+            statusText.innerText = 'Saving to Cloud...';
+        } else if (status === 'saved') {
+            statusIcon.className = 'ph ph-cloud-check';
+            statusIcon.style.animation = 'none';
+            statusText.innerText = 'Draft Saved';
+        } else if (status === 'error') {
+            statusIcon.className = 'ph ph-cloud-warning';
+            statusIcon.style.animation = 'none';
+            statusText.innerText = 'Save Failed';
+        }
+    };
+
+    const triggerCloudSave = () => {
+        setSaveStatus('saving');
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(async () => {
+            await cloudSaveProject();
+        }, 2000); // Debounce save for 2 seconds
+    };
+
+    const cloudSaveProject = async () => {
+        const user = auth.currentUser;
+        if (!user) {
+            console.log("User not logged in, saving to local storage only.");
+            localStorage.setItem(`mychronicle_draft_${currentProjectId}`, JSON.stringify(HistoryManager.captureState()));
+            setSaveStatus('saved');
+            return;
+        }
+
+        const projectTitle = document.getElementById('design-title-input')?.value || "Untitled Design";
+        const projectData = {
+            title: projectTitle,
+            orientation: selectedOrient,
+            pages: totalPages,
+            lastUpdated: serverTimestamp(),
+            content: HistoryManager.captureState()
+        };
+
+        try {
+            const projectRef = doc(db, "users", user.uid, "projects", currentProjectId);
+            await setDoc(projectRef, projectData, { merge: true });
+            setSaveStatus('saved');
+            console.log("Project saved to cloud successfully!");
+        } catch (error) {
+            console.error("Error saving project:", error);
+            setSaveStatus('error');
+        }
+    };
+
+    // Watch for title changes
+    document.getElementById('design-title-input')?.addEventListener('input', triggerCloudSave);
+
+    // Initial check for cloud data
+    auth.onAuthStateChanged(async (user) => {
+        if (user && urlParams.get('id')) {
+            const projectRef = doc(db, "users", user.uid, "projects", currentProjectId);
+            const docSnap = await getDoc(projectRef);
+            if (docSnap.exists() && confirm("Found a saved cloud version of this project. Would you like to restore it?")) {
+                const data = docSnap.data();
+                HistoryManager.applyState(data.content);
+                if (document.getElementById('design-title-input')) {
+                    document.getElementById('design-title-input').value = data.title;
+                }
+            }
+        }
+    });
+
+    // --- Place Order Logic ---
+    const placeOrderBtn = document.getElementById('place-order-btn');
+    if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Please log in to place your order.");
+                import('./login-ui.js').then(m => m.injectLoginModal());
+                return;
+            }
+
+            if (!confirm("Are you ready to submit your photobook for printing? This will create a permanent order.")) return;
+
+            placeOrderBtn.disabled = true;
+            placeOrderBtn.innerText = "Submitting Order...";
+
+            const projectTitle = document.getElementById('design-title-input')?.value || "Untitled Design";
+            const orderData = {
+                orderId: `ORD-${Date.now()}`,
+                userId: user.uid,
+                userEmail: user.email,
+                title: projectTitle,
+                orientation: selectedOrient,
+                pages: totalPages,
+                status: "Pending",
+                createdAt: serverTimestamp(),
+                content: HistoryManager.captureState()
+            };
+
+            try {
+                const orderRef = collection(db, "orders");
+                await addDoc(orderRef, orderData);
+                alert("Success! Your order has been placed. You can view its status in your dashboard.");
+                placeOrderBtn.innerText = "Order Placed!";
+                placeOrderBtn.style.background = "#28a745";
+            } catch (error) {
+                console.error("Error placing order:", error);
+                alert("There was an error submitting your order. Please try again.");
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.innerText = "Place Order";
+            }
+        });
+    }
+
+    // Add CSS Pulse Animation
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
 });
 

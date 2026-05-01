@@ -22,9 +22,13 @@
     <!-- Navbar simplified for tool -->
     <nav class="navbar glass" style="position:relative; background:#fff; border-bottom:1px solid #eaeaea; height: 80px;">
         <a href="editor.html" class="logo" style="text-decoration:none; font-family: var(--font-body); font-weight:600; font-size:1.1rem; color:var(--text-main);"><i class="ph ph-arrow-left"></i> step back</a>
-        <div class="logo" style="display:flex; align-items:center; gap:8px;"><img src="favicon.png" alt="Logo" style="height:48px; width:auto;">mychronicle studio</div>
-        <div></div>
+        <div class="logo" style="display:flex; align-items:center; gap:8px;"><img src="logo_mychronicle.png" alt="Logo" style="height:48px; width:auto;">mychronicle studio</div>
+        <div class="nav-actions" style="display:flex; align-items:center; gap:1.5rem; margin-right: 1.5rem;">
+            <div id="user-menu-root"><i class="ph ph-user-circle" style="font-size:1.8rem; cursor:pointer;"></i></div>
+        </div>
     </nav>
+
+    <script type="module" src="login-ui.js"></script>
 
     <!-- STEP 1: Upload -->
     <div id="step-upload" class="step-container">
@@ -137,9 +141,19 @@
             </div>
             <div class="topbar-center">
                 <input type="text" id="design-title-input" class="design-title-input" value="Untitled design - Photobook Page" placeholder="Enter design name...">
+                <div id="cloud-save-status" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.75rem; color: #888; margin-top: 4px; font-family: var(--font-body);">
+                    <i class="ph ph-cloud-check" id="save-status-icon"></i>
+                    <span id="save-status-text">Draft Saved</span>
+                </div>
             </div>
-            <div class="topbar-right">
-                <i class="ph-fill ph-user-circle" style="font-size:1.5rem;"></i>
+            <div class="topbar-right" style="display:flex; align-items:center; gap:1rem;">
+                <button id="place-order-btn" style="padding: 0.6rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: var(--font-body); display: flex; align-items:center; gap:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <i class="ph-fill ph-shopping-cart-simple"></i>
+                    Place Order
+                </button>
+                <div id="user-menu-root">
+                    <i class="ph-fill ph-user-circle" style="font-size:1.8rem; cursor:pointer;"></i>
+                </div>
             </div>
         </div>
         <div class="canva-body">
@@ -352,6 +366,6 @@
         </div>
     </div>
 
-    <script src="studio.js"></script>
+    <script type="module" src="studio.js"></script>
 </body>
 </html>
