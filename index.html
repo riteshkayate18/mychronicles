@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mychronicle - Premium Photobooks</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Roboto+Condensed:ital,wght@0,300..700;1,300..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar glass">
+        <div class="logo" style="display:flex; align-items:center; gap:8px;"><img src="logo_mychronicle.png" alt="Logo" style="height:48px; width:auto;">mychronicle</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#shop">Shop</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#help">Help</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-icons">
+            <span class="icon search-icon"><i class="ph ph-magnifying-glass"></i></span>
+            <span class="icon account-icon"><i class="ph ph-user"></i></span>
+            <span class="icon cart-icon">
+                <i class="ph ph-shopping-cart"></i><span class="cart-badge" id="cart-badge">0</span>
+            </span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero" style="background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url('images/hero.png');">
+        <div class="hero-content glass-card">
+            <h1>Preserve Your Best Moments</h1>
+            <p>Premium, gallery-quality photobooks crafted with passion. Experience the luxury of touching your memories.</p>
+            <button class="cta-button">Shop Now</button>
+        </div>
+    </section>
+
+    <!-- Featured Collections -->
+    <section class="section-container" id="featured">
+        <h2 class="section-title">Featured Collections</h2>
+        <div class="featured-grid">
+            <div class="featured-card">
+                <img src="images/wedding.png" class="featured-img" alt="Wedding Collection">
+                <div class="card-info glass">
+                    <h3>Wedding Collection</h3>
+                    <p>Elegant layouts to remember the most important day.</p>
+                </div>
+            </div>
+            <div class="featured-card">
+                <img src="images/travel.png" class="featured-img" alt="Travel Diaries">
+                <div class="card-info glass">
+                    <h3>Travel Diaries</h3>
+                    <p>Wanderlust bound in beautiful covers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Section -->
+    <section class="section-container" id="shop">
+        <h2 class="section-title">Shop Our Photobooks</h2>
+        <div class="products-grid">
+            <!-- Product 1 -->
+            <div class="product-card glass-card hover-lift">
+                <img src="images/wedding.png" class="product-img" alt="Premium Layflat">
+                <div class="product-details">
+                    <h3>Premium Layflat</h3>
+                    <p class="price">₹4999</p>
+                    <button class="primary-btn nav-to-editor-btn" onclick="window.location.href='editor.html'" style="width:100%; border-radius: 100px; padding: 0.8rem;">Customize</button>
+                </div>
+            </div>
+            <!-- Product 2 -->
+            <div class="product-card glass-card hover-lift">
+                <img src="images/hero.png" class="product-img" alt="Classic Hardcover">
+                <div class="product-details">
+                    <h3>Classic Hardcover</h3>
+                    <p class="price">₹3499</p>
+                    <button class="primary-btn nav-to-editor-btn" onclick="window.location.href='editor.html'" style="width:100%; border-radius: 100px; padding: 0.8rem;">Customize</button>
+                </div>
+            </div>
+            <!-- Product 3 -->
+            <div class="product-card glass-card hover-lift">
+                <img src="images/travel.png" class="product-img" alt="Softcover Lite">
+                <div class="product-details">
+                    <h3>Softcover Lite</h3>
+                    <p class="price">₹1999</p>
+                    <button class="primary-btn nav-to-editor-btn" onclick="window.location.href='editor.html'" style="width:100%; border-radius: 100px; padding: 0.8rem;">Customize</button>
+                </div>
+            </div>
+            <!-- Product 4 -->
+            <div class="product-card glass-card hover-lift">
+                <img src="images/about.png" class="product-img" alt="Leather Bound">
+                <div class="product-details">
+                    <h3>Leather Bound</h3>
+                    <p class="price">₹7499</p>
+                    <button class="primary-btn nav-to-editor-btn" onclick="window.location.href='editor.html'" style="width:100%; border-radius: 100px; padding: 0.8rem;">Customize</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-container split-section">
+        <div class="about-text">
+            <h2 class="section-title left-align">Our Story</h2>
+            <p>At mychronicle, we believe your memories deserve a home as beautiful as the moments themselves. Inspired by minimalist design and high-quality craftsmanship, we created a platform where creating a premium photobook is effortless.</p>
+            <p>Our books are printed on archival-quality paper, bound elegantly, and designed to look stunning on your coffee table for generations to come.</p>
+        </div>
+        <div class="about-image glass-card">
+            <img src="images/about.png" class="about-img" alt="Crafting Memories">
+        </div>
+    </section>
+
+    <!-- Help / FAQ Section -->
+    <section id="help" class="section-container faq-section">
+        <h2 class="section-title">Help & FAQ</h2>
+        <div class="accordion">
+            <div class="accordion-item glass-card">
+                <button class="accordion-header">What is the delivery time? <span class="arrow">▼</span></button>
+                <div class="accordion-content">
+                    <p>Our standard production time is 3-5 business days. Shipping usually takes an additional 2-4 days depending on your location.</p>
+                </div>
+            </div>
+            <div class="accordion-item glass-card">
+                <button class="accordion-header">What paper quality do you use? <span class="arrow">▼</span></button>
+                <div class="accordion-content">
+                    <p>We use premium 200gsm silk/matte paper with an option to upgrade to layflat photographic paper for an ultra-premium feel.</p>
+                </div>
+            </div>
+            <div class="accordion-item glass-card">
+                <button class="accordion-header">Do you ship internationally? <span class="arrow">▼</span></button>
+                <div class="accordion-content">
+                    <p>Yes, we ship globally! Shipping fees are calculated at checkout based on your destination.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer glass-card">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>mychronicle</h3>
+                <p>Preserving moments, beautifully.</p>
+                <div class="social-icons">
+                    <span><i class="ph ph-instagram-logo"></i></span>
+                    <span><i class="ph ph-facebook-logo"></i></span>
+                    <span><i class="ph ph-twitter-logo"></i></span>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Shop</h4>
+                <ul>
+                    <li><a href="#shop">Photobooks</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Gift Cards</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#help">FAQ</a></li>
+                    <li><a href="#">Shipping & Returns</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 mychronicle. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Cart Overlay Plugin (Hidden by Default) -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-container glass">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <button id="close-cart" class="close-btn">&times;</button>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- Cart items will be injected here via JS -->
+                <p class="empty-cart-msg">Your cart is currently empty.</p>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total-price">₹0.00</span>
+                </div>
+                <button class="checkout-btn">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Profile Overlay (Hidden by Default) -->
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-container glass-card">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <button id="close-auth" class="close-btn">&times;</button>
+            </div>
+            <form id="auth-form" class="auth-form">
+                <input type="email" id="auth-email" placeholder="Email Address" required class="glass-input">
+                <input type="password" placeholder="Password" required class="glass-input">
+                <button type="submit" class="primary-btn">Sign In</button>
+                <p class="auth-switch">Don't have an account? <a href="#">Register</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Overlay -->
+    <div id="profile-modal" class="auth-modal">
+        <div class="auth-container glass-card">
+            <div class="auth-header">
+                <h2>My Account</h2>
+                <button id="close-profile" class="close-btn">&times;</button>
+            </div>
+            <div class="profile-info" style="text-align: left;">
+                <p style="margin-bottom: 2rem;">Logged in as: <br><b id="profile-email" style="color: var(--primary);"></b></p>
+                <button id="logout-btn" class="add-to-cart-btn" style="width: 100%;">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

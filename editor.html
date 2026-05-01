@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mychronicle - Custom Photobook Editor</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Roboto+Condensed:ital,wght@0,300..700;1,300..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="editor-page-body">
+    <!-- Navbar -->
+    <nav class="navbar glass">
+        <a href="index.html" class="logo" style="text-decoration:none; display:flex; align-items:center; gap:8px;"><img src="logo_mychronicle.png" alt="Logo" style="height:48px; width:auto;">mychronicle</a>
+        <ul class="nav-links">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#shop">Shop</a></li>
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#help">Help</a></li>
+        </ul>
+        <div class="nav-icons">
+            <span class="icon search-icon"><i class="ph ph-magnifying-glass"></i></span>
+            <span class="icon account-icon"><i class="ph ph-user"></i></span>
+            <span class="icon cart-icon">
+                <i class="ph ph-shopping-cart"></i><span class="cart-badge" id="cart-badge">0</span>
+            </span>
+        </div>
+    </nav>
+
+    <!-- Editor Main layout -->
+    <div class="editor-container">
+        <!-- Left Panel: Preview -->
+        <div class="editor-left">
+            <div class="main-preview glass-card">
+                <img src="images/hero.png" alt="Preview Book" id="editor-main-img">
+            </div>
+            <div class="thumbnail-strip">
+                <img src="images/hero.png" class="thumb active">
+                <img src="images/wedding.png" class="thumb">
+                <img src="images/travel.png" class="thumb">
+                <img src="images/about.png" class="thumb">
+            </div>
+        </div>
+
+        <!-- Right Panel: Controls -->
+        <div class="editor-right">
+            <h1 class="editor-title">custom photobook</h1>
+            <div class="reviews">
+                <span class="stars"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></span>
+                <span class="review-text">rated 5/5 by <u>72 reviews</u></span>
+            </div>
+            
+            <div class="price-section" style="margin-top: 1rem;">
+                <h2>24 pages from <strike class="strike-price">₹4,999</strike> <span class="active-price">₹3,499</span> <span class="badge">save 50%</span></h2>
+                <p class="per-page-price">then ₹99 per extra page</p>
+            </div>
+
+            <div class="editor-section-container" style="border-top: none; padding-top: 0;">
+                <h3 class="section-main-title">choose your book</h3>
+                
+                <div class="orientation-selection">
+                    <p class="selection-label">ORIENTATION & SIZE</p>
+                    <div class="orientation-grid">
+                        <div class="orientation-card glass-card">
+                            <div class="orientation-box square"></div>
+                            <i class="ph-fill ph-check-circle selection-check"></i>
+                            <span class="orient-name">Square</span>
+                            <span class="orient-size">(21 x 21 cm)</span>
+                        </div>
+                        <div class="orientation-card glass-card">
+                            <div class="orientation-box landscape"></div>
+                            <i class="ph-fill ph-check-circle selection-check"></i>
+                            <span class="orient-name">Landscape</span>
+                            <span class="orient-size">(29 x 21 cm)</span>
+                        </div>
+                        <div class="orientation-card glass-card">
+                            <div class="orientation-box portrait"></div>
+                            <i class="ph-fill ph-check-circle selection-check"></i>
+                            <span class="orient-name">Portrait</span>
+                            <span class="orient-size">(21 x 29 cm)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="thickness-selection-wrapper">
+                    <p class="selection-label">CHOOSE PAGES FOR YOUR BOOK</p>
+                    <div class="thickness-grid" style="grid-template-columns: repeat(5, 1fr);">
+                        <div class="thick-card glass-card active"><i class="ph ph-notebook"></i><br><span>24 pages</span></div>
+                        <div class="thick-card glass-card"><i class="ph ph-book"></i><br><span>50 pages</span></div>
+                        <div class="thick-card glass-card"><i class="ph ph-books"></i><br><span>100 pages</span></div>
+                        <div class="thick-card glass-card"><i class="ph-fill ph-book-open"></i><br><span>150 pages</span></div>
+                        <div class="thick-card glass-card"><i class="ph-fill ph-books"></i><br><span>200 pages</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="primary-btn editor-start-btn" id="editor-add-cart">start my design</button>
+
+            <div class="delivery-info">
+                <p><i class="ph-fill ph-truck"></i> order today & get it delivered express by Thursday</p>
+                <p><i class="ph-fill ph-tree"></i> 1 tree planted for every 5 books sold. <b style="color:var(--text-main);">38,264 trees planted</b></p>
+            </div>
+
+
+        </div>
+    </div>
+    
+    <!-- Cart Overlay Plugin -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-container glass">
+            ...
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <button id="close-cart" class="close-btn">&times;</button>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <p class="empty-cart-msg">Your cart is currently empty.</p>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total-price">₹0.00</span>
+                </div>
+                <button class="checkout-btn">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Profile Overlay (Hidden by Default) -->
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-container glass-card">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <button id="close-auth" class="close-btn">&times;</button>
+            </div>
+            <form id="auth-form" class="auth-form">
+                <input type="email" id="auth-email" placeholder="Email Address" required class="glass-input">
+                <input type="password" placeholder="Password" required class="glass-input">
+                <button type="submit" class="primary-btn">Sign In</button>
+                <p class="auth-switch">Don't have an account? <a href="#">Register</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Overlay -->
+    <div id="profile-modal" class="auth-modal">
+        <div class="auth-container glass-card">
+            <div class="auth-header">
+                <h2>My Account</h2>
+                <button id="close-profile" class="close-btn">&times;</button>
+            </div>
+            <div class="profile-info" style="text-align: left;">
+                <p style="margin-bottom: 2rem;">Logged in as: <br><b id="profile-email" style="color: var(--primary);"></b></p>
+                <button id="logout-btn" class="add-to-cart-btn" style="width: 100%;">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

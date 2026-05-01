@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mychronicle - Photobook Studio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Roboto+Condensed:ital,wght@0,300..700;1,300..700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Cropper.js for professional cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <!-- Phosphor Icons -->
+    <!-- Phosphor Icons v2.1.1 (CSS Version for stability) -->
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <!-- Cropper.js for professional cropping -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+</head>
+<body class="studio-body">
+    <!-- Navbar simplified for tool -->
+    <nav class="navbar glass" style="position:relative; background:#fff; border-bottom:1px solid #eaeaea; height: 80px;">
+        <a href="editor.html" class="logo" style="text-decoration:none; font-family: var(--font-body); font-weight:600; font-size:1.1rem; color:var(--text-main);"><i class="ph ph-arrow-left"></i> step back</a>
+        <div class="logo" style="display:flex; align-items:center; gap:8px;"><img src="favicon.png" alt="Logo" style="height:48px; width:auto;">mychronicle studio</div>
+        <div></div>
+    </nav>
+
+    <!-- STEP 1: Upload -->
+    <div id="step-upload" class="step-container">
+        <h2 style="font-weight: 700; color: #333; margin-bottom: 1.5rem; font-family: 'Ubuntu', sans-serif;">Smart Photo Book</h2>
+        <p style="max-width: 450px; font-size: 1rem; color: #555; margin: 0 auto 2rem auto; line-height: 1.4;">
+            Upload your photos, and our AI will instantly<br>craft your photo book. It picks the best<br>shots, skipping over duplicates and poor-<br>quality images, and organizes everything<br>chronologically - without you lifting a finger.
+        </p>
+        <div class="upload-options" style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem;">
+            <button class="ghost-btn" onclick="document.getElementById('file-input').click()"><i class="ph ph-desktop" style="margin-right: 8px; font-size: 1.2rem; vertical-align: middle;"></i> Computer</button>
+            <button class="ghost-btn"><i class="ph ph-device-mobile" style="margin-right: 8px; font-size: 1.2rem; vertical-align: middle;"></i> Add from your phone</button>
+        </div>
+        <button id="upload-btn" class="ghost-btn" style="margin-bottom: 2rem;" onclick="document.getElementById('file-input').click()"><i class="ph ph-folder" style="margin-right: 8px; font-size: 1.2rem; vertical-align: middle;"></i> My photos</button>
+        <div id="drag-area" class="drag-drop-area" style="width: 100%; max-width: 500px; padding: 4rem 2rem; border: 2px dashed #999; background: #cfcfcf; color: #000; font-weight: 700; border-radius: 4px; font-size: 0.9rem;">
+            or drag & drop them here
+        </div>
+        <input type="file" id="file-input" multiple accept="image/*" style="display:none;">
+    </div>
+
+    <!-- STEP 1.5: Photo Review -->
+    <div id="step-review" class="review-layout" style="display:none;">
+        <div class="review-main" id="review-main-area">
+            <div id="review-grid" class="review-photo-grid">
+                <!-- injected photos -->
+            </div>
+        </div>
+        <div class="review-sidebar">
+            <h3 style="font-size: 1.8rem; color: #333; margin-bottom: 0.5rem;">All set?</h3>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 2rem;">Don't wait for photos to finish uploading.</p>
+            
+            <div class="add-more-box review-add-more" id="review-drag-area" onclick="document.getElementById('file-input-review').click()">
+                <i class="ph ph-image" style="color:#0c9b74; font-size:1.5rem; margin-bottom: 0.5rem;"></i><br>
+                <span style="color:#0c9b74; font-weight: 600; display: block; margin-bottom: 0.5rem;">Add more photos</span>
+                <span style="font-size:0.8rem; color:#aaa; font-weight: 400;">Drag and drop or click to add photos from another source.</span>
+            </div>
+            <input type="file" id="file-input-review" multiple accept="image/*" style="display:none;">
+
+            <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #555; text-align: center;">Ready to create your book with <span id="review-photo-count">0</span> photos?</p>
+
+            <button id="do-magic-btn" class="primary-btn black-btn" style="width:100%; margin-top: 1rem; padding: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">Do the magic <i class="ph ph-caret-right"></i></button>
+
+
+            
+            <div class="book-illustration" style="margin-top: 3rem; opacity: 0.5;">
+                <i class="ph ph-book-open" style="font-size: 5rem; color: #eee;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2: Magic -->
+    <div id="step-magic" class="step-container" style="display:none;">
+        <h2>We are doing the magic now!</h2>
+        <div class="magic-loader">
+            <video class="color-wheel" autoplay loop muted playsinline>
+                <source src="images/magic-loader.mp4" type="video/mp4">
+            </video>
+            <div class="magic-checklist">
+                <div class="check-item" id="magic-check-1"><i class="ph ph-check-circle"></i> Getting your images ready</div>
+                <div class="check-item" id="magic-check-2"><i class="ph ph-check-circle"></i> Picking the best layout sequence</div>
+                <div class="check-item" id="magic-check-3"><i class="ph ph-check-circle"></i> Creating a beautiful story</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3: Editor -->
+    <div id="step-editor" class="editor-layout" style="display:none;">
+        <div class="studio-main">
+            <div class="toolbar">
+                <button><i class="ph ph-arrow-u-up-left"></i> Undo</button>
+                <button><i class="ph ph-arrow-u-up-right"></i> Redo</button>
+                <button><i class="ph ph-magic-wand"></i> Remagic Layout</button>
+            </div>
+            <div id="spread-container" class="spread-canvas">
+               <!-- Auto generated pages -->
+            </div>
+        </div>
+        <div class="studio-right">
+            <h3>All set?</h3>
+            <p style="font-size:0.8rem; color:#888;">Review your algorithmically generated layout before printing.</p>
+            <div class="add-more-box" id="studio-add-more-btn">
+                <i class="ph ph-plus-circle" style="color:var(--primary); font-size:2rem;"></i><br><br>
+                Add more photos
+            </div>
+            <input type="file" id="studio-add-photos-input" multiple accept="image/*" style="display:none;">
+            <div style="flex-grow:1;"></div>
+            <button id="cart-order-btn" class="primary-btn black-btn" style="width:100%; padding:1rem; font-size:1.1rem;">Add to Cart <i class="ph ph-shopping-cart"></i></button>
+        </div>
+    </div>
+
+    <!-- STEP 4: Full Page Editor (Canva Style) -->
+    <div id="canva-editor" class="canva-layout" style="display:none;">
+        <div class="canva-topbar">
+            <div class="topbar-home-wrapper" id="canva-close-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10L12 3L21 10V19C21 20.6569 19.6569 22 18 22H6C4.34315 22 3 20.6569 3 19V10Z"></path>
+                    <path d="M9 22V15C9 13.3431 10.3431 12 12 12C13.6569 12 15 13.3431 15 15V22"></path>
+                </svg>
+            </div>
+            <div class="topbar-left">
+                <div class="topbar-branding" style="display:flex; align-items:center; gap:8px; margin-right: 1rem; font-family: var(--font-body); font-weight: 600; font-size: 1rem;">
+                    <img src="logo_mychronicle.png" alt="Logo" style="height:32px; width:auto;">
+                    <span>mychronicle studio</span>
+                </div>
+                <div class="topbar-divider" style="height:24px; width:1px; background:rgba(255,255,255,0.2); margin: 0 0.5rem;"></div>
+                <button class="history-btn" id="undo-btn" title="Undo (Ctrl+Z)" disabled>
+                    <i class="ph ph-arrow-u-up-left"></i>
+                </button>
+                <button class="history-btn" id="redo-btn" title="Redo (Ctrl+Y)" disabled>
+                    <i class="ph ph-arrow-u-up-right"></i>
+                </button>
+            </div>
+            <div class="topbar-center">
+                <input type="text" id="design-title-input" class="design-title-input" value="Untitled design - Photobook Page" placeholder="Enter design name...">
+            </div>
+            <div class="topbar-right">
+                <i class="ph-fill ph-user-circle" style="font-size:1.5rem;"></i>
+            </div>
+        </div>
+        <div class="canva-body">
+            <div class="canva-sidebar">
+                <div class="canva-tool">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="9" x2="9" y2="21"></line>
+                    </svg><span>Templates</span>
+                </div>
+                <div class="canva-tool">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <path d="M17 3L13 10H21L17 3Z"></path>
+                        <circle cx="6.5" cy="17.5" r="3.5"></circle>
+                        <line x1="14" y1="14" x2="21" y2="14"></line>
+                        <line x1="14" y1="18" x2="21" y2="18"></line>
+                        <line x1="14" y1="22" x2="21" y2="22"></line>
+                    </svg><span>Elements</span>
+                </div>
+                <div class="canva-tool">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7V4H20V7"></path>
+                        <path d="M12 4V20"></path>
+                        <path d="M9 20H15"></path>
+                    </svg><span>Text</span>
+                </div>
+                <div class="canva-tool active"><i class="ph ph-cloud-arrow-up"></i><span>Uploads</span></div>
+                <div class="canva-tool">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13"></path>
+                        <path d="M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path>
+                    </svg><span>Tools</span>
+                </div>
+                <div class="canva-tool">
+                    <i class="ph ph-sparkle"></i><span>AI</span>
+                </div>
+            </div>
+            <div class="canva-workspace">
+                <div class="canva-zoom-wrapper" id="canva-zoom-wrapper">
+                    <div class="canva-canvas-area" id="canva-canvas-area">
+                        <!-- The active spread will be cloned here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="canva-timeline">
+            <div class="timeline-header">
+                <div class="timeline-h-left">
+                    <button id="view-one-page" class="active"><i class="ph ph-square"></i> One page</button>
+                    <button id="view-all-pages"><i class="ph ph-squares-four"></i> All pages</button>
+                </div>
+                <div class="timeline-h-center">
+                    <button id="timeline-prev"><i class="ph ph-caret-left"></i> Previous page</button>
+                    <span id="timeline-current-page" style="margin: 0 1rem; font-weight: 600;">Page X</span>
+                    <button id="timeline-next">Next page <i class="ph ph-caret-right"></i></button>
+                </div>
+                <div class="timeline-h-right" style="display:flex; align-items:center; gap:1rem;">
+                    <i class="ph ph-arrow-counter-clockwise" id="zoom-reset-btn" style="cursor:pointer; font-size:1.2rem;" title="Reset Zoom"></i>
+                    <input type="range" min="10" max="200" value="100" class="canva-zoom-slider" id="canva-zoom-slider">
+                    <span id="canva-zoom-text" style="min-width:40px;">100%</span>
+                    <i class="ph ph-arrows-out-simple" id="fullscreen-btn" style="cursor:pointer; font-size:1.2rem;" title="Toggle Fullscreen"></i>
+                    <i class="ph ph-question" style="cursor:pointer; font-size:1.2rem;"></i>
+                </div>
+            </div>
+            <div class="timeline-content">
+                <div class="timeline-thumbnails" id="timeline-thumbnails">
+                    <!-- Cloned mini spreads will go here -->
+                </div>
+                <div class="timeline-actions">
+                    <button class="black-btn" id="timeline-dup-btn" style="white-space: nowrap;"><i class="ph ph-copy"></i> Duplicate</button>
+                    <button class="ghost-btn" id="timeline-remove-btn" style="white-space: nowrap;"><i class="ph ph-trash"></i> Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="image-context-menu" class="context-menu" style="display:none;">
+        <div class="menu-item" id="menu-copy"><i class="ph ph-copy"></i> Copy <span>Ctrl+C</span></div>
+        <div class="menu-item" id="menu-paste"><i class="ph ph-clipboard"></i> Paste <span>Ctrl+V</span></div>
+        <div class="menu-item" id="menu-cut"><i class="ph ph-scissors"></i> Cut <span>Ctrl+X</span></div>
+        <div class="menu-item" id="menu-duplicate"><i class="ph ph-copy-simple"></i> Duplicate <span>Ctrl+D</span></div>
+        <div class="menu-item" id="menu-delete"><i class="ph ph-trash"></i> Delete <span>DELETE</span></div>
+        <div class="menu-divider"></div>
+        <div class="menu-item sub-menu-trigger" id="menu-align">
+            <i class="ph ph-align-center-horizontal"></i> Align to page 
+            <i class="ph ph-caret-right" id="align-arrow" style="margin-left: auto; padding: 4px; border-radius: 4px;"></i>
+            <div class="sub-menu">
+                <div class="menu-item" id="align-left"><i class="ph ph-align-left"></i> Left</div>
+                <div class="menu-item" id="align-center"><i class="ph ph-align-center-horizontal"></i> Center</div>
+                <div class="menu-item" id="align-right"><i class="ph ph-align-right"></i> Right</div>
+                <div class="menu-divider"></div>
+                <div class="menu-item" id="align-top"><i class="ph ph-align-top"></i> Top</div>
+                <div class="menu-item" id="align-middle"><i class="ph ph-align-center-vertical"></i> Middle</div>
+                <div class="menu-item" id="align-bottom"><i class="ph ph-align-bottom"></i> Bottom</div>
+            </div>
+        </div>
+        <div class="menu-item sub-menu-trigger" id="menu-layer">
+            <i class="ph ph-stack"></i> Layer 
+            <i class="ph ph-caret-right" id="layer-arrow" style="margin-left: auto; padding: 4px; border-radius: 4px;"></i>
+            <div class="sub-menu">
+                <div class="menu-item" id="layer-forward">
+                    <svg width="18" height="18" viewBox="0 0 256 256" style="fill: #555;"><path d="M216,40H112a16,16,0,0,0-16,16V96H40a16,16,0,0,0-16,16V216a16,16,0,0,0,16,16H144a16,16,0,0,0,16-16V160h56a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM144,216H40V112H96v48a16,16,0,0,0,16,16h32Zm72-72H160V112a16,16,0,0,0-16-16H112V56H216Z"></path></svg>
+                    Forward
+                </div>
+                <div class="menu-item" id="layer-backward">
+                    <svg width="18" height="18" viewBox="0 0 256 256" style="fill: #555;"><path d="M216,96H160V56a16,16,0,0,0-16-16H40A16,16,0,0,0,24,56V160a16,16,0,0,0,16,16H96v40a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V112A16,16,0,0,0,216,96ZM40,160V56H144v40H112a16,16,0,0,0-16,16v48ZM216,216H112V112H216Z"></path></svg>
+                    Backward
+                </div>
+                <div class="menu-divider"></div>
+                <div class="menu-item" id="layer-front">
+                    <svg width="18" height="18" viewBox="0 0 256 256" style="fill: #555;"><path d="M228.44,89.34l-96-56a8,8,0,0,0-8.88,0l-96,56a8,8,0,0,0,0,13.32l96,56a8,8,0,0,0,8.88,0l96-56a8,8,0,0,0,0-13.32ZM128,131.5,50,86l78-45.5L206,86ZM224,124a8,8,0,0,1-4.44,7.11l-87.11,50.82a8,8,0,0,1-8.89,0l-87.11-50.82a8,8,0,0,1,8.89-13.32L128,163.5l82.67-48.22a8,8,0,0,1,8.89,13.32ZM224,164a8,8,0,0,1-4.44,7.11l-87.11,50.82a8,8,0,0,1-8.89,0L36.44,171.11a8,8,0,0,1,8.89-13.32L128,203.5l82.67-48.22a8,8,0,0,1,8.89,13.32Z"></path></svg>
+                    To front
+                </div>
+                <div class="menu-item" id="layer-back">
+                    <svg width="18" height="18" viewBox="0 0 256 256" style="fill: #555; transform: rotate(180deg);"><path d="M228.44,89.34l-96-56a8,8,0,0,0-8.88,0l-96,56a8,8,0,0,0,0,13.32l96,56a8,8,0,0,0,8.88,0l96-56a8,8,0,0,0,0-13.32ZM128,131.5,50,86l78-45.5L206,86ZM224,124a8,8,0,0,1-4.44,7.11l-87.11,50.82a8,8,0,0,1-8.89,0l-87.11-50.82a8,8,0,0,1,8.89-13.32L128,163.5l82.67-48.22a8,8,0,0,1,8.89,13.32ZM224,164a8,8,0,0,1-4.44,7.11l-87.11,50.82a8,8,0,0,1-8.89,0L36.44,171.11a8,8,0,0,1,8.89-13.32L128,203.5l82.67-48.22a8,8,0,0,1,8.89,13.32Z"></path></svg>
+                    To back
+                </div>
+            </div>
+        </div>
+        <div class="menu-item" id="menu-crop"><i class="ph ph-crop"></i> Transform</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="menu-lock"><i class="ph ph-lock"></i> Lock</div>
+    </div>
+
+    <!-- Crop Panel -->
+    <div id="crop-panel" class="crop-panel" style="display:none;">
+        <div class="crop-header">
+            <h3>Transform</h3>
+            <i class="ph ph-x" id="crop-close"></i>
+        </div>
+        
+        <div class="crop-section">
+            <p class="section-title">Aspect ratio</p>
+            <div class="aspect-carousel-container">
+                <button class="aspect-arrow left" id="aspect-prev"><i class="ph ph-caret-left"></i></button>
+                <div class="aspect-carousel" id="aspect-carousel">
+                    <div class="aspect-item active" data-ratio="free">
+                        <div class="aspect-box"><i class="ph ph-corners-out"></i></div>
+                        <span>Freeform</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="original">
+                        <div class="aspect-box"><i class="ph ph-image"></i></div>
+                        <span>Original</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="1-1">
+                        <div class="aspect-box"><div class="aspect-shape sq"></div></div>
+                        <span>1:1</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="16-9">
+                        <div class="aspect-box"><div class="aspect-shape wide"></div></div>
+                        <span>16:9</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="9-16">
+                        <div class="aspect-box"><div class="aspect-shape tall"></div></div>
+                        <span>9:16</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="4-3">
+                        <div class="aspect-box"><div class="aspect-shape rect-h"></div></div>
+                        <span>4:3</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="3-4">
+                        <div class="aspect-box"><div class="aspect-shape rect-v"></div></div>
+                        <span>3:4</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="3-2">
+                        <div class="aspect-box"><div class="aspect-shape rect-h2"></div></div>
+                        <span>3:2</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="5-4">
+                        <div class="aspect-box"><div class="aspect-shape rect-h3"></div></div>
+                        <span>5:4</span>
+                    </div>
+                    <div class="aspect-item" data-ratio="4-5">
+                        <div class="aspect-box"><div class="aspect-shape rect-v3"></div></div>
+                        <span>4:5</span>
+                    </div>
+                </div>
+                <button class="aspect-arrow right" id="aspect-next"><i class="ph ph-caret-right"></i></button>
+            </div>
+        </div>
+
+        <div class="crop-section">
+            <p class="section-title">Rotate</p>
+            <div class="rotate-control">
+                <input type="range" min="-180" max="180" value="0" id="crop-rotate-slider">
+                <input type="number" class="rotate-value" id="crop-rotate-input" value="0">
+            </div>
+            <div class="rotate-actions">
+                <button class="rotate-action-btn" id="crop-flip-h" title="Flip Horizontal"><i class="ph ph-flip-horizontal"></i></button>
+                <button class="rotate-action-btn" id="crop-flip-v" title="Flip Vertical"><i class="ph ph-flip-vertical"></i></button>
+                <button class="rotate-action-btn" id="crop-rotate-l" title="Rotate Left 90°"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                <button class="rotate-action-btn" id="crop-rotate-r" title="Rotate Right 90°"><i class="ph ph-arrow-clockwise"></i></button>
+            </div>
+        </div>
+
+        <div class="crop-section">
+            <p class="section-title">Opacity</p>
+            <div class="rotate-control">
+                <input type="range" min="0" max="100" value="100" id="crop-opacity-slider">
+                <div class="rotate-value" style="width: 50px;" id="crop-opacity-text">100%</div>
+            </div>
+        </div>
+
+        <div class="crop-footer">
+            <button class="crop-btn-cancel" id="crop-cancel">Cancel</button>
+            <button class="crop-btn-done" id="crop-done">Done</button>
+        </div>
+    </div>
+
+    <script src="studio.js"></script>
+</body>
+</html>
