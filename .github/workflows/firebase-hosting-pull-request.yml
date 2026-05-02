@@ -13,9 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYCHRONICLES_61A30 }}
-          projectId: mychronicles-61a30
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYCHRONICLES_STUDIO_PREMIUM_18 }}
+          projectId: mychronicles-studio-premium-18
