@@ -373,123 +373,152 @@
             const denied = document.getElementById('access-denied');
             
             if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                loader.style.display = 'none';
+                if (loader) loader.style.display = 'none';
                 initAdmin();
             } else {
-                loader.style.display = 'none';
-                denied.style.display = 'flex';
+                if (loader) loader.style.display = 'none';
+                if (denied) denied.style.display = 'flex';
             }
         });
 
         function showTab(tabName) {
             document.querySelectorAll('.data-card').forEach(card => card.style.display = 'none');
-            document.getElementById('tab-' + tabName).style.display = 'block';
+            const target = document.getElementById('tab-' + tabName);
+            if (target) target.style.display = 'block';
             
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            // Fix: find the nav item by its onclick attribute or text
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(tabName)) {
+                    item.classList.add('active');
+                }
+            });
         }
 
+        let lastOrderCount = -1;
+        const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
         async function initAdmin() {
+            const ordersList = document.getElementById('orders-list');
+            const activityList = document.getElementById('activity-list');
+            const activeCountBadge = document.getElementById('active-users-count');
+            const statRevenue = document.getElementById('stat-revenue');
+            const statOrders = document.getElementById('stat-orders');
+            const statPending = document.getElementById('stat-pending');
+
             // Load Orders
             db.collection('orders').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-                const list = document.getElementById('orders-list');
-                const orders = [];
+                if (!ordersList) return;
+                
                 let totalRevenue = 0;
                 let pendingCount = 0;
 
                 if (snapshot.empty) {
-                    list.innerHTML = '<tr><td colspan="6" style="text-align: center;">No orders found.</td></tr>';
+                    ordersList.innerHTML = '<tr><td colspan="6" style="text-align: center;">No orders found.</td></tr>';
                     return;
                 }
 
-                list.innerHTML = '';
+                // Play sound for new orders
+                if (lastOrderCount !== -1 && snapshot.size > lastOrderCount) {
+                    notificationSound.play().catch(e => console.log("Sound blocked by browser"));
+                }
+                lastOrderCount = snapshot.size;
+
+                ordersList.innerHTML = '';
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    orders.push(data);
-                    totalRevenue += data.price || 0;
-                    if (data.status === 'pending') pendingCount++;
-
-                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() : 'N/A';
-                    
                     const tr = document.createElement('tr');
+                    
+                    const orderTotal = (data.items || []).reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+                    totalRevenue += orderTotal;
+                    if (data.status === 'pending' || data.status === 'ordered') pendingCount++;
+                    
+                    const timestamp = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now...';
+                    
                     tr.innerHTML = `
-                        <td>#${doc.id.slice(0, 8)}</td>
-                        <td>${data.user_email}</td>
-                        <td>${date}</td>
-                        <td><a href="${data.pdf_url}" target="_blank" class="action-btn" style="text-decoration:none;">View PDF</a></td>
-                        <td><span class="status-badge status-${data.status}">${data.status}</span></td>
+                        <td>#${doc.id.slice(-6).toUpperCase()}</td>
+                        <td>${data.user_email || 'Anonymous'}</td>
+                        <td>${timestamp}</td>
+                        <td><a href="${data.pdf_url}" target="_blank" class="action-btn" title="View PDF"><i class="ph ph-file-pdf"></i> View PDF</a></td>
+                        <td><span class="status-badge status-${data.status || 'pending'}">${data.status || 'pending'}</span></td>
                         <td>
-                            <select onchange="updateStatus('${doc.id}', this.value)" style="background:#1e293b; color:#fff; border:1px solid #334155; border-radius:4px; padding:4px;">
-                                <option value="pending" ${data.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="completed" ${data.status === 'completed' ? 'selected' : ''}>Completed</option>
-                            </select>
+                            <div style="display:flex; gap:8px;">
+                                <button class="action-btn" onclick="updateStatus('${doc.id}', 'completed')" title="Mark Completed"><i class="ph ph-check-circle"></i></button>
+                            </div>
                         </td>
                     `;
-                    list.appendChild(tr);
+                    ordersList.appendChild(tr);
                 });
 
-                document.getElementById('stat-revenue').innerText = '₹' + totalRevenue.toLocaleString();
-                document.getElementById('stat-orders').innerText = orders.length;
-                document.getElementById('stat-pending').innerText = pendingCount;
-            });
+                if (statOrders) statOrders.innerText = snapshot.size;
+                if (statRevenue) statRevenue.innerText = `₹${totalRevenue.toLocaleString()}`;
+                if (statPending) statPending.innerText = pendingCount;
+            }, err => console.error("Orders Error:", err));
 
             // Load Studio Activity
             db.collection('studio_activity').orderBy('last_active', 'desc').onSnapshot(snapshot => {
-                const list = document.getElementById('activity-list');
-                const countBadge = document.getElementById('active-users-count');
-                let activeCount = 0;
+                if (!activityList) return;
+                
+                activityList.innerHTML = '';
+                let activeNow = 0;
 
                 if (snapshot.empty) {
-                    list.innerHTML = '<tr><td colspan="6" style="text-align: center;">No activity recorded.</td></tr>';
-                    countBadge.innerText = '0 Users Active';
+                    activityList.innerHTML = '<tr><td colspan="6" style="text-align: center;">No activity recorded.</td></tr>';
                     return;
                 }
 
-                list.innerHTML = '';
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (data.status === 'designing') activeCount++;
-
-                    const lastActive = data.last_active ? new Date(data.last_active.seconds * 1000).toLocaleTimeString() : 'Just now';
-                    
                     const tr = document.createElement('tr');
+
+                    const timestamp = data.last_active ? new Date(data.last_active.seconds * 1000).toLocaleTimeString() : 'Recently';
+                    const isOrdered = data.status === 'ordered';
+                    
                     tr.innerHTML = `
-                        <td>${data.user_email}</td>
-                        <td><span class="status-badge ${data.status === 'ordered' ? 'status-completed' : 'status-pending'}">${data.status}</span></td>
+                        <td>${data.user_email || 'User'}</td>
+                        <td><span class="status-badge ${isOrdered ? 'status-completed' : 'status-pending'}">${data.status || 'designing'}</span></td>
                         <td>${data.page_count || 0}</td>
-                        <td>${data.orientation || 'N/A'}</td>
-                        <td>${lastActive}</td>
+                        <td>${data.orientation || 'Portrait'}</td>
+                        <td>${timestamp}</td>
                         <td>
                             ${data.pdf_url ? `<a href="${data.pdf_url}" target="_blank" class="action-btn">View PDF</a>` : '<span style="color:#64748b">In Progress</span>'}
                         </td>
                     `;
-                    list.appendChild(tr);
+                    activityList.appendChild(tr);
+                    if (data.status === 'designing') activeNow++;
                 });
 
-                countBadge.innerText = `${activeCount} User${activeCount !== 1 ? 's' : ''} Active`;
-            });
+                if (activeCountBadge) activeCountBadge.innerText = `${activeNow} User${activeNow !== 1 ? 's' : ''} Active`;
+            }, err => console.error("Activity Error:", err));
 
             // Load Users
             db.collection('users').limit(20).get().then(snapshot => {
                 const list = document.getElementById('users-list');
+                if (!list) return;
                 list.innerHTML = '';
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${doc.id}</td>
-                        <td>${data.email}</td>
-                        <td>${data.last_active || 'N/A'}</td>
+                        <td>${doc.id.slice(0, 8)}...</td>
+                        <td>${data.email || 'N/A'}</td>
+                        <td>${data.last_active ? new Date(data.last_active.seconds * 1000).toLocaleString() : 'N/A'}</td>
                         <td><button class="action-btn">Manage</button></td>
                     `;
                     list.appendChild(tr);
                 });
-            });
+            }).catch(err => console.error("Users Load Error:", err));
         }
 
         async function updateStatus(orderId, newStatus) {
-            await db.collection('orders').doc(orderId).update({ status: newStatus });
-            alert('Order status updated!');
+            try {
+                await db.collection('orders').doc(orderId).update({ status: newStatus });
+                alert('Order status updated!');
+            } catch (e) {
+                console.error("Update Error:", e);
+                alert("Error updating status: " + e.message);
+            }
         }
     </script>
 </body>

@@ -6,7 +6,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": ".",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -17,7 +17,7 @@
     "providers": {
       "emailPassword": true,
       "googleSignIn": {
-        "oAuthBrandDisplayName": "MyChronicles Studio",
+        "oAuthBrandDisplayName": "MyChronicles",
         "supportEmail": "riteshkayate18@gmail.com"
       }
     }

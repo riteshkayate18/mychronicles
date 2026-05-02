@@ -1173,18 +1173,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
             }
 
-            statusText.innerText = 'Uploading your design to our secure server...';
+            statusText.innerText = `Uploading your design: 0%`;
             
             // 3. Convert PDF to Blob
             const pdfBlob = pdf.output('blob');
             const fileName = `orders/${auth.currentUser.uid}_${Date.now()}.pdf`;
             const storageRef = storage.ref().child(fileName);
 
-            // 4. Upload to Firebase Storage
-            const uploadTask = await storageRef.put(pdfBlob);
-            const downloadURL = await uploadTask.ref.getDownloadURL();
+            // 4. Upload with Progress Monitoring
+            return new Promise((resolve, reject) => {
+                const uploadTask = storageRef.put(pdfBlob);
 
-            statusText.innerText = 'Finalizing your order...';
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        statusText.innerText = `Uploading your design: ${progress}%`;
+                    }, 
+                    (error) => {
+                        console.error('Upload Failed:', error);
+                        reject(error);
+                    }, 
+                    async () => {
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        resolve(downloadURL);
+                    }
+                );
+            }).then(async (downloadURL) => {
+                statusText.innerText = 'Finalizing your order...';
 
             // 5. Save Order to Firestore
             const orderData = {

@@ -23,12 +23,6 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if isAdmin();
     }
-
-    // Studio Activity Tracking
-    match /studio_activity/{userId} {
-      allow write: if request.auth != null && request.auth.uid == userId;
-      allow read: if isAdmin();
-    }
     
     // Default fallback
     match /{document=**} {

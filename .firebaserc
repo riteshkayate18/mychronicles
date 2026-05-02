@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "mychronicles-61a30"
+  },
   "targets": {},
   "etags": {}
 }
