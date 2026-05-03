@@ -18,7 +18,7 @@
         }
 
         .admin-layout {
-            display: flex;
+            display: none; /* Hidden by default for security */
             min-height: 100vh;
         }
 
@@ -374,6 +374,7 @@
             
             if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                 loader.style.display = 'none';
+                document.querySelector('.admin-layout').style.display = 'flex';
                 initAdmin();
             } else {
                 loader.style.display = 'none';

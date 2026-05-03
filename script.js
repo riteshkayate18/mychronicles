@@ -338,7 +338,9 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('mychronicle_book_orientation', activeOrientCard.querySelector('.orient-name').innerText);
             localStorage.setItem('mychronicle_book_size', activeOrientCard.querySelector('.orient-size').innerText);
 
-            editorAddCart.innerText = 'launching studio...';
+            editorAddCart.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Preparing your studio...';
+            editorAddCart.style.opacity = '0.8';
+            editorAddCart.style.pointerEvents = 'none';
             setTimeout(() => {
                 window.location.href = `studio.html?pages=${pageCount}`;
             }, 600);
