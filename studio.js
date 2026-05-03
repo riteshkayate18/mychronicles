@@ -1159,13 +1159,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusText.innerText = `Rendering page ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
                 
                 const canvas = await html2canvas(spreads[i], {
-                    scale: 2, // Higher resolution for print
+                    scale: 1.5, // Reduced slightly for upload speed while retaining print quality
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgData = canvas.toDataURL('image/jpeg', 0.85);
                 
                 if (i > 0) pdf.addPage();
                 
@@ -1180,9 +1180,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileName = `orders/${auth.currentUser.uid}_${Date.now()}.pdf`;
             const storageRef = storage.ref().child(fileName);
 
-            // 4. Upload to Firebase Storage
-            const uploadTask = await storageRef.put(pdfBlob);
-            const downloadURL = await uploadTask.ref.getDownloadURL();
+            // 4. Upload to Firebase Storage with Progress Tracking
+            const uploadTask = storageRef.put(pdfBlob);
+            
+            uploadTask.on('state_changed', (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                statusText.innerText = `Uploading your design to our secure server... ${Math.round(progress)}%`;
+            });
+
+            await uploadTask;
+            const downloadURL = await storageRef.getDownloadURL();
 
             statusText.innerText = 'Finalizing your order...';
 
