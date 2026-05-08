@@ -1149,8 +1149,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const { jsPDF } = window.jspdf;
             let pdf = null;
 
-            // 2. Capture all spreads
-            const spreads = document.querySelectorAll('#spread-container .spread-wrap');
+            // 2. Capture all spreads (targeting the exact paper boundary, not the UI wrap)
+            const spreads = document.querySelectorAll('#spread-container .spread-paper');
             const total = spreads.length;
 
             for (let i = 0; i < total; i++) {
