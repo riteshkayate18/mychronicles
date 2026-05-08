@@ -1177,19 +1177,36 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 3. Convert PDF to Blob
             const pdfBlob = pdf.output('blob');
-            const fileName = `orders/${auth.currentUser.uid}_${Date.now()}.pdf`;
-            const storageRef = storage.ref().child(fileName);
 
-            // 4. Upload to Firebase Storage with Progress Tracking
-            const uploadTask = storageRef.put(pdfBlob);
-            
-            uploadTask.on('state_changed', (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                statusText.innerText = `Uploading your design to our secure server... ${Math.round(progress)}%`;
+            // 4. Upload to Cloudinary with Progress Tracking
+            const formData = new FormData();
+            formData.append('file', pdfBlob, `order_${auth.currentUser.uid}_${Date.now()}.pdf`);
+            formData.append('upload_preset', 'mychronicle');
+
+            const downloadURL = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://api.cloudinary.com/v1_1/dg5ailpa3/auto/upload');
+                
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const progress = (event.loaded / event.total) * 100;
+                        statusText.innerText = `Uploading your design to our secure server... ${Math.round(progress)}%`;
+                    }
+                };
+                
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        reject(new Error('Cloudinary upload failed: ' + xhr.responseText));
+                    }
+                };
+                
+                xhr.onerror = () => reject(new Error('Network error during upload'));
+                
+                xhr.send(formData);
             });
-
-            await uploadTask;
-            const downloadURL = await storageRef.getDownloadURL();
 
             statusText.innerText = 'Finalizing your order...';
 
