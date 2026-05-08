@@ -1145,32 +1145,72 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.style.display = 'flex';
             statusText.innerText = 'Preparing your design for printing...';
 
-            // 1. Initialize PDF (A4 size)
+            // 1. Initialize PDF based on selected book orientation
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
+            const orientationStr = localStorage.getItem('mychronicle_book_orientation') || 'Square';
+            let pdfWidth = 210;
+            let pdfHeight = 210;
+            let pdfFormat = [210, 210]; // default square
 
-            // 2. Capture all spreads
+            if (orientationStr.toLowerCase() === 'landscape') {
+                pdfWidth = 290;
+                pdfHeight = 210;
+                pdfFormat = [290, 210];
+            } else if (orientationStr.toLowerCase() === 'portrait') {
+                pdfWidth = 210;
+                pdfHeight = 290;
+                pdfFormat = [210, 290];
+            }
+
+            // Using 'p' for Portrait if height > width, else 'l' for Landscape
+            const orientationMode = pdfWidth > pdfHeight ? 'l' : 'p';
+            const pdf = new jsPDF(orientationMode, 'mm', pdfFormat);
+
+            // 2. Capture all spreads and split them
             const spreads = document.querySelectorAll('#spread-container .spread-wrap');
             const total = spreads.length;
+            let pageIndex = 0; // Tracks actual PDF pages added
 
             for (let i = 0; i < total; i++) {
-                statusText.innerText = `Rendering page ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
+                statusText.innerText = `High-Fidelity Render: Spread ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
                 
-                const canvas = await html2canvas(spreads[i], {
-                    scale: 1.5, // Reduced slightly for upload speed while retaining print quality
+                // PHASE 3: High-Fidelity Print Quality Protection
+                const fullCanvas = await html2canvas(spreads[i], {
+                    scale: 4, // Elevated scale factor for ~300 DPI print quality
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.85);
-                
-                if (i > 0) pdf.addPage();
-                
-                // Fit to A4
-                pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                // PHASE 2: The Spread-Splitting Logic
+                const halfWidth = fullCanvas.width / 2;
+                const fullHeight = fullCanvas.height;
+
+                // Create Left Page Canvas
+                const leftCanvas = document.createElement('canvas');
+                leftCanvas.width = halfWidth;
+                leftCanvas.height = fullHeight;
+                const leftCtx = leftCanvas.getContext('2d');
+                leftCtx.drawImage(fullCanvas, 0, 0, halfWidth, fullHeight, 0, 0, halfWidth, fullHeight);
+                const leftImgData = leftCanvas.toDataURL('image/jpeg', 1.0);
+
+                // Create Right Page Canvas
+                const rightCanvas = document.createElement('canvas');
+                rightCanvas.width = halfWidth;
+                rightCanvas.height = fullHeight;
+                const rightCtx = rightCanvas.getContext('2d');
+                rightCtx.drawImage(fullCanvas, halfWidth, 0, halfWidth, fullHeight, 0, 0, halfWidth, fullHeight);
+                const rightImgData = rightCanvas.toDataURL('image/jpeg', 1.0);
+
+                // Add Left Page
+                if (pageIndex > 0) pdf.addPage();
+                pdf.addImage(leftImgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pageIndex++;
+
+                // Add Right Page
+                pdf.addPage();
+                pdf.addImage(rightImgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pageIndex++;
             }
 
             statusText.innerText = 'Uploading your design to our secure server...';
