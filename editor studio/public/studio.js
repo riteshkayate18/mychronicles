@@ -1149,6 +1149,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const { jsPDF } = window.jspdf;
             let pdf = null;
 
+            // Retrieve physical size requirements based on user's orientation choice
+            const selectedOrient = localStorage.getItem('mychronicle_book_orientation') || 'Square';
+            let singlePageWidthCm = 21;
+            let singlePageHeightCm = 21;
+
+            if (selectedOrient === 'Landscape') {
+                singlePageWidthCm = 29;
+                singlePageHeightCm = 21;
+            } else if (selectedOrient === 'Portrait') {
+                singlePageWidthCm = 21;
+                singlePageHeightCm = 29;
+            } else {
+                singlePageWidthCm = 21;
+                singlePageHeightCm = 21;
+            }
+
             // 2. Capture all spreads (targeting the exact paper boundary, not the UI wrap)
             const spreads = document.querySelectorAll('#spread-container .spread-paper');
             const total = spreads.length;
@@ -1163,23 +1179,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     backgroundColor: '#ffffff'
                 });
 
-                // Helper to add a given canvas to the PDF document
-                const addCanvasToPdf = (sourceCanvas) => {
+                // Helper to add a given canvas to the PDF document with EXACT physical dimensions
+                const addCanvasToPdf = (sourceCanvas, isFullSpread) => {
                     const imgData = sourceCanvas.toDataURL('image/jpeg', 0.85);
-                    const width = sourceCanvas.width;
-                    const height = sourceCanvas.height;
-                    const orientation = width >= height ? 'l' : 'p';
+                    
+                    // Force the PDF page to exactly match the real-world physical CM dimensions
+                    const pdfWidthCm = isFullSpread ? singlePageWidthCm * 2 : singlePageWidthCm;
+                    const pdfHeightCm = singlePageHeightCm;
+                    const orientation = pdfWidthCm > pdfHeightCm ? 'l' : 'p';
                     
                     if (!pdf) {
                         pdf = new jsPDF({
                             orientation: orientation,
-                            unit: 'px',
-                            format: [width, height]
+                            unit: 'cm',
+                            format: [pdfWidthCm, pdfHeightCm]
                         });
                     } else {
-                        pdf.addPage([width, height], orientation);
+                        pdf.addPage([pdfWidthCm, pdfHeightCm], orientation);
                     }
-                    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+                    
+                    // Draw the high-res canvas onto the precise physical cm dimensions
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidthCm, pdfHeightCm);
                 };
 
                 // Helper to slice a canvas exactly in half (left or right side)
@@ -1201,18 +1221,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Apply splitting logic based on spread position
                 if (i === 0) {
-                    // Cover Spread: Add as one full continuous spread
-                    addCanvasToPdf(canvas);
+                    // Cover Spread: Add as one full continuous spread (Double width)
+                    addCanvasToPdf(canvas, true);
                 } else if (i === 1) {
                     // Page 1 Spread: Right side only (Left side is blank inside-cover)
-                    addCanvasToPdf(sliceCanvas(canvas, 'right'));
+                    addCanvasToPdf(sliceCanvas(canvas, 'right'), false);
                 } else if (i === total - 1) {
                     // Last Page Spread: Left side only (Right side is blank inside-cover)
-                    addCanvasToPdf(sliceCanvas(canvas, 'left'));
+                    addCanvasToPdf(sliceCanvas(canvas, 'left'), false);
                 } else {
                     // Middle Spreads: Split into two separate PDF pages
-                    addCanvasToPdf(sliceCanvas(canvas, 'left'));
-                    addCanvasToPdf(sliceCanvas(canvas, 'right'));
+                    addCanvasToPdf(sliceCanvas(canvas, 'left'), false);
+                    addCanvasToPdf(sliceCanvas(canvas, 'right'), false);
                 }
             }
 
