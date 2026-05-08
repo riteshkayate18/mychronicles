@@ -1145,11 +1145,9 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.style.display = 'flex';
             statusText.innerText = 'Preparing your design for printing...';
 
-            // 1. Initialize PDF (A4 size)
+            // 1. Initialize jsPDF
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
+            let pdf = null;
 
             // 2. Capture all spreads
             const spreads = document.querySelectorAll('#spread-container .spread-wrap');
@@ -1167,10 +1165,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const imgData = canvas.toDataURL('image/jpeg', 0.85);
                 
-                if (i > 0) pdf.addPage();
+                // Get exact dimensions of the rendered canvas
+                const width = canvas.width;
+                const height = canvas.height;
+                const orientation = width >= height ? 'l' : 'p';
                 
-                // Fit to A4
-                pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                if (!pdf) {
+                    // Create first page with exact canvas dimensions
+                    pdf = new jsPDF({
+                        orientation: orientation,
+                        unit: 'px',
+                        format: [width, height]
+                    });
+                } else {
+                    // Add new page with exact canvas dimensions
+                    pdf.addPage([width, height], orientation);
+                }
+                
+                // Add image to completely fill the perfectly-sized page
+                pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
             }
 
             statusText.innerText = 'Uploading your design to our secure server...';
