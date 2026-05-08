@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const total = spreads.length;
 
             for (let i = 0; i < total; i++) {
-                statusText.innerText = `Rendering page ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
+                statusText.innerText = `Rendering section ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
                 
                 const canvas = await html2canvas(spreads[i], {
                     scale: 1.5, // Reduced slightly for upload speed while retaining print quality
@@ -1163,27 +1163,57 @@ document.addEventListener('DOMContentLoaded', () => {
                     backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.85);
-                
-                // Get exact dimensions of the rendered canvas
-                const width = canvas.width;
-                const height = canvas.height;
-                const orientation = width >= height ? 'l' : 'p';
-                
-                if (!pdf) {
-                    // Create first page with exact canvas dimensions
-                    pdf = new jsPDF({
-                        orientation: orientation,
-                        unit: 'px',
-                        format: [width, height]
-                    });
+                // Helper to add a given canvas to the PDF document
+                const addCanvasToPdf = (sourceCanvas) => {
+                    const imgData = sourceCanvas.toDataURL('image/jpeg', 0.85);
+                    const width = sourceCanvas.width;
+                    const height = sourceCanvas.height;
+                    const orientation = width >= height ? 'l' : 'p';
+                    
+                    if (!pdf) {
+                        pdf = new jsPDF({
+                            orientation: orientation,
+                            unit: 'px',
+                            format: [width, height]
+                        });
+                    } else {
+                        pdf.addPage([width, height], orientation);
+                    }
+                    pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+                };
+
+                // Helper to slice a canvas exactly in half (left or right side)
+                const sliceCanvas = (sourceCanvas, side) => {
+                    const halfWidth = sourceCanvas.width / 2;
+                    const height = sourceCanvas.height;
+                    const sliced = document.createElement('canvas');
+                    sliced.width = halfWidth;
+                    sliced.height = height;
+                    const ctx = sliced.getContext('2d');
+                    
+                    if (side === 'left') {
+                        ctx.drawImage(sourceCanvas, 0, 0, halfWidth, height, 0, 0, halfWidth, height);
+                    } else {
+                        ctx.drawImage(sourceCanvas, halfWidth, 0, halfWidth, height, 0, 0, halfWidth, height);
+                    }
+                    return sliced;
+                };
+
+                // Apply splitting logic based on spread position
+                if (i === 0) {
+                    // Cover Spread: Add as one full continuous spread
+                    addCanvasToPdf(canvas);
+                } else if (i === 1) {
+                    // Page 1 Spread: Right side only (Left side is blank inside-cover)
+                    addCanvasToPdf(sliceCanvas(canvas, 'right'));
+                } else if (i === total - 1) {
+                    // Last Page Spread: Left side only (Right side is blank inside-cover)
+                    addCanvasToPdf(sliceCanvas(canvas, 'left'));
                 } else {
-                    // Add new page with exact canvas dimensions
-                    pdf.addPage([width, height], orientation);
+                    // Middle Spreads: Split into two separate PDF pages
+                    addCanvasToPdf(sliceCanvas(canvas, 'left'));
+                    addCanvasToPdf(sliceCanvas(canvas, 'right'));
                 }
-                
-                // Add image to completely fill the perfectly-sized page
-                pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
             }
 
             statusText.innerText = 'Uploading your design to our secure server...';
