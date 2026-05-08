@@ -1159,13 +1159,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusText.innerText = `Rendering page ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
                 
                 const canvas = await html2canvas(spreads[i], {
-                    scale: 2, // Higher resolution for print
+                    scale: 1.5, // Reduced slightly for upload speed while retaining print quality
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgData = canvas.toDataURL('image/jpeg', 0.85);
                 
                 if (i > 0) pdf.addPage();
                 
@@ -1173,33 +1173,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
             }
 
-            statusText.innerText = `Uploading your design: 0%`;
+            statusText.innerText = 'Uploading your design to our secure server...';
             
             // 3. Convert PDF to Blob
             const pdfBlob = pdf.output('blob');
-            const fileName = `orders/${auth.currentUser.uid}_${Date.now()}.pdf`;
-            const storageRef = storage.ref().child(fileName);
 
-            // 4. Upload with Progress Monitoring
-            return new Promise((resolve, reject) => {
-                const uploadTask = storageRef.put(pdfBlob);
+            // 4. Upload to Cloudinary with Progress Tracking
+            const formData = new FormData();
+            formData.append('file', pdfBlob, `order_${auth.currentUser.uid}_${Date.now()}.pdf`);
+            formData.append('upload_preset', 'mychronicle');
 
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                        statusText.innerText = `Uploading your design: ${progress}%`;
-                    }, 
-                    (error) => {
-                        console.error('Upload Failed:', error);
-                        reject(error);
-                    }, 
-                    async () => {
-                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        resolve(downloadURL);
+            const downloadURL = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://api.cloudinary.com/v1_1/dg5ailpa3/auto/upload');
+                
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const progress = (event.loaded / event.total) * 100;
+                        statusText.innerText = `Uploading your design to our secure server... ${Math.round(progress)}%`;
                     }
-                );
-            }).then(async (downloadURL) => {
-                statusText.innerText = 'Finalizing your order...';
+                };
+                
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        reject(new Error('Cloudinary upload failed: ' + xhr.responseText));
+                    }
+                };
+                
+                xhr.onerror = () => reject(new Error('Network error during upload'));
+                
+                xhr.send(formData);
+            });
+
+            statusText.innerText = 'Finalizing your order...';
 
             // 5. Save Order to Firestore
             const orderData = {
