@@ -1183,14 +1183,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 // PHASE 3: High-Fidelity Print Quality Protection
-                // Scaling up to 8x to ensure the 600px CSS container renders out to 4800px.
-                // This guarantees ~300 DPI for standard A4/Square print sizes, preserving the user's original image resolution.
+                // We assign a temporary ID to safely manipulate the cloned spread
+                const tempId = 'capture-target-' + i;
+                spreads[i].setAttribute('id', tempId);
+
                 const fullCanvas = await html2canvas(spreads[i], {
-                    scale: 8, 
+                    scale: 2, // 2 * 3000px = 6000px final width (Unbeatable 300+ DPI Quality)
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    onclone: (clonedDoc) => {
+                        const target = clonedDoc.getElementById(tempId);
+                        if (target) {
+                            // Break out of responsive grid constraints
+                            target.style.position = 'absolute';
+                            target.style.left = '0';
+                            target.style.top = '0';
+                            target.style.margin = '0';
+                            target.style.transform = 'none';
+                            
+                            // Force an ultra-high resolution base size
+                            target.style.width = '3000px';
+                            target.style.minWidth = '3000px';
+                            target.style.maxWidth = '3000px';
+                        }
+                    }
                 });
+                
+                spreads[i].removeAttribute('id');
 
                 // Restore UI elements
                 uiElements.forEach((el, idx) => {
