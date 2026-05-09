@@ -1183,8 +1183,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 // PHASE 3: High-Fidelity Print Quality Protection
+                // Scaling up to 8x to ensure the 600px CSS container renders out to 4800px.
+                // This guarantees ~300 DPI for standard A4/Square print sizes, preserving the user's original image resolution.
                 const fullCanvas = await html2canvas(spreads[i], {
-                    scale: 3, // Elevated scale factor for ~300 DPI print quality
+                    scale: 8, 
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff'
