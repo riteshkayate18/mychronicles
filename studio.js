@@ -1174,12 +1174,25 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < total; i++) {
                 statusText.innerText = `High-Fidelity Render: Spread ${i + 1} of ${total} (${Math.round((i/total)*100)}%)`;
                 
+                // Hide editor UI elements temporarily for clean capture
+                const uiElements = spreads[i].querySelectorAll('.spread-label, .spread-actions, .spread-move-bar, .binding-shadow');
+                const originalDisplays = [];
+                uiElements.forEach(el => {
+                    originalDisplays.push(el.style.display);
+                    el.style.display = 'none';
+                });
+
                 // PHASE 3: High-Fidelity Print Quality Protection
                 const fullCanvas = await html2canvas(spreads[i], {
-                    scale: 4, // Elevated scale factor for ~300 DPI print quality
+                    scale: 3, // Elevated scale factor for ~300 DPI print quality
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff'
+                });
+
+                // Restore UI elements
+                uiElements.forEach((el, idx) => {
+                    el.style.display = originalDisplays[idx];
                 });
 
                 // PHASE 2: The Spread-Splitting Logic
@@ -1202,14 +1215,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 rightCtx.drawImage(fullCanvas, halfWidth, 0, halfWidth, fullHeight, 0, 0, halfWidth, fullHeight);
                 const rightImgData = rightCanvas.toDataURL('image/jpeg', 1.0);
 
+                // Dimensional Mapping (1:1 Ratio Management)
+                const pdfRatio = pdfWidth / pdfHeight;
+                const imgRatio = halfWidth / fullHeight;
+
+                let drawWidth = pdfWidth;
+                let drawHeight = pdfHeight;
+                let drawX = 0;
+                let drawY = 0;
+
+                if (imgRatio > pdfRatio) {
+                    drawHeight = pdfWidth / imgRatio;
+                    drawY = (pdfHeight - drawHeight) / 2;
+                } else {
+                    drawWidth = pdfHeight * imgRatio;
+                    drawX = (pdfWidth - drawWidth) / 2;
+                }
+
                 // Add Left Page
                 if (pageIndex > 0) pdf.addPage();
-                pdf.addImage(leftImgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.addImage(leftImgData, 'JPEG', drawX, drawY, drawWidth, drawHeight);
                 pageIndex++;
 
                 // Add Right Page
                 pdf.addPage();
-                pdf.addImage(rightImgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.addImage(rightImgData, 'JPEG', drawX, drawY, drawWidth, drawHeight);
                 pageIndex++;
             }
 
