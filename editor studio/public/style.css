@@ -2749,56 +2749,112 @@ input:checked + .slider:before {
     }
     
     /* Editor Page */
+    /* Studio Layouts */
     .editor-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
     }
     
-    .editor-sidebar {
-        height: auto;
-        flex-direction: row;
-        overflow-x: auto;
+    .studio-left, .studio-right {
+        width: 100%;
+        border-right: none;
+        border-left: none;
+    }
+    
+    .studio-right {
+        order: -1; /* Place right sidebar at top on mobile */
+        border-bottom: 1px solid #eaeaea;
         padding: 1rem;
     }
     
-    .editor-main-view {
-        height: 50vh;
+    .spread-canvas {
+        grid-template-columns: 1fr;
+        padding: 1rem;
     }
     
-    .editor-info-panel {
+    .spread-wrap {
+        width: 100%;
+    }
+    
+    /* Canva Studio Mode Responsiveness */
+    .canva-body {
+        flex-direction: column-reverse; /* Put sidebar at bottom */
+    }
+    
+    .canva-sidebar {
+        width: 100%;
         height: auto;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 0.5rem 0;
+        border-right: none;
+        border-top: 1px solid #eaeaea;
+        overflow-x: auto;
+        flex-shrink: 0;
     }
     
-    /* Studio Page */
-    .studio-layout {
+    .canva-tool {
+        width: 60px;
+        height: 50px;
+        margin-bottom: 0;
+    }
+    
+    .canva-tool span {
+        display: none; /* Hide tool text on mobile to save space */
+    }
+    
+    .canva-workspace {
+        height: 50vh; /* Fixed height for workspace on mobile to allow scrolling */
+    }
+    
+    .canva-zoom-wrapper {
+        padding-top: 1rem;
+    }
+    
+    .canva-canvas-area {
+        width: 95%;
+    }
+    
+    .canva-timeline {
+        height: auto;
         flex-direction: column;
     }
     
-    .studio-sidebar {
-        width: 100%;
+    .timeline-header {
+        flex-wrap: wrap;
         height: auto;
-        border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
+        padding: 1rem;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .timeline-content {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .timeline-actions {
         flex-direction: row;
-        overflow-x: auto;
-    }
-    
-    .studio-workspace {
-        height: 60vh;
-        width: 100%;
-    }
-    
-    #spread-container {
-        transform: scale(0.5); /* Shrink canvas for mobile */
-        transform-origin: top center;
-    }
-    
-    .studio-right-panel {
-        width: 100%;
-        height: auto;
         border-left: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid #eaeaea;
+        padding-left: 0;
+        padding-top: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Adjust specific nav and grid elements */
+    .magic-loader {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    .upload-options {
+        flex-direction: column;
     }
     
     /* Admin Dashboard */
@@ -2837,10 +2893,13 @@ input:checked + .slider:before {
 
 /* Very Small Devices (Phones) */
 @media (max-width: 480px) {
-    #spread-container {
-        transform: scale(0.4);
+    .canva-tool {
+        width: 50px;
     }
     .hero-content p {
         font-size: 1rem;
+    }
+    .admin-stats {
+        flex-direction: column;
     }
 }
