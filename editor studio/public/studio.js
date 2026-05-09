@@ -1188,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 spreads[i].setAttribute('id', tempId);
 
                 const fullCanvas = await html2canvas(spreads[i], {
-                    scale: 2, // 2 * 3000px = 6000px final width (Unbeatable 300+ DPI Quality)
+                    scale: 2, // 2 * 2400px = 4800px final width (Still pristine 300+ DPI Quality)
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff',
@@ -1203,9 +1203,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             target.style.transform = 'none';
                             
                             // Force an ultra-high resolution base size
-                            target.style.width = '3000px';
-                            target.style.minWidth = '3000px';
-                            target.style.maxWidth = '3000px';
+                            target.style.width = '2400px';
+                            target.style.minWidth = '2400px';
+                            target.style.maxWidth = '2400px';
                         }
                     }
                 });
@@ -1227,7 +1227,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 leftCanvas.height = fullHeight;
                 const leftCtx = leftCanvas.getContext('2d');
                 leftCtx.drawImage(fullCanvas, 0, 0, halfWidth, fullHeight, 0, 0, halfWidth, fullHeight);
-                const leftImgData = leftCanvas.toDataURL('image/jpeg', 1.0);
+                // 0.75 quality dramatically reduces file size while remaining visually lossless
+                const leftImgData = leftCanvas.toDataURL('image/jpeg', 0.75);
 
                 // Create Right Page Canvas
                 const rightCanvas = document.createElement('canvas');
@@ -1235,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rightCanvas.height = fullHeight;
                 const rightCtx = rightCanvas.getContext('2d');
                 rightCtx.drawImage(fullCanvas, halfWidth, 0, halfWidth, fullHeight, 0, 0, halfWidth, fullHeight);
-                const rightImgData = rightCanvas.toDataURL('image/jpeg', 1.0);
+                const rightImgData = rightCanvas.toDataURL('image/jpeg', 0.75);
 
                 // Dimensional Mapping (1:1 Ratio Management)
                 const pdfRatio = pdfWidth / pdfHeight;
@@ -1254,14 +1255,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     drawX = (pdfWidth - drawWidth) / 2;
                 }
 
-                // Add Left Page
+                // Add Left Page with 'FAST' compression
                 if (pageIndex > 0) pdf.addPage();
-                pdf.addImage(leftImgData, 'JPEG', drawX, drawY, drawWidth, drawHeight);
+                pdf.addImage(leftImgData, 'JPEG', drawX, drawY, drawWidth, drawHeight, undefined, 'FAST');
                 pageIndex++;
 
-                // Add Right Page
+                // Add Right Page with 'FAST' compression
                 pdf.addPage();
-                pdf.addImage(rightImgData, 'JPEG', drawX, drawY, drawWidth, drawHeight);
+                pdf.addImage(rightImgData, 'JPEG', drawX, drawY, drawWidth, drawHeight, undefined, 'FAST');
                 pageIndex++;
             }
 
@@ -1282,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 xhr.upload.onprogress = (event) => {
                     if (event.lengthComputable) {
                         const progress = (event.loaded / event.total) * 100;
-                        statusText.innerText = `Uploading your design to our secure server... ${Math.round(progress)}%`;
+                        statusText.innerText = `Uploading heavily-compressed Ultra-HD PDF... ${Math.round(progress)}%`;
                     }
                 };
                 
