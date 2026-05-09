@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeCart) closeCart.addEventListener('click', () => cartModal.classList.remove('open'));
 
     // --- Dynamic Cart Functionality ---
-    let cart = JSON.parse(localStorage.getItem('mychronicle_cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('urchronicle_cart')) || [];
     const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
     const cartItemsContainer = document.getElementById('cart-items');
     const cartBadge = document.getElementById('cart-badge');
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cartBadge.innerText = count;
         cartTotalPrice.innerText = '₹' + total.toFixed(2);
-        localStorage.setItem('mychronicle_cart', JSON.stringify(cart));
+        localStorage.setItem('urchronicle_cart', JSON.stringify(cart));
 
         // Bind remove buttons
         document.querySelectorAll('.remove-item').forEach(btn => {
@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activePageCard) {
                 const text = activePageCard.querySelector('span').innerText;
                 pageCount = parseInt(text) || 24;
-                localStorage.setItem('mychronicle_book_pages', pageCount.toString());
+                localStorage.setItem('urchronicle_book_pages', pageCount.toString());
             }
             
             const activeOrientCard = document.querySelector('.orientation-card.active');
@@ -335,8 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            localStorage.setItem('mychronicle_book_orientation', activeOrientCard.querySelector('.orient-name').innerText);
-            localStorage.setItem('mychronicle_book_size', activeOrientCard.querySelector('.orient-size').innerText);
+            localStorage.setItem('urchronicle_book_orientation', activeOrientCard.querySelector('.orient-name').innerText);
+            localStorage.setItem('urchronicle_book_size', activeOrientCard.querySelector('.orient-size').innerText);
 
             editorAddCart.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Preparing your studio...';
             editorAddCart.style.opacity = '0.8';
@@ -368,8 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const name = card.querySelector('.orient-name').innerText;
                 const size = card.querySelector('.orient-size').innerText;
-                localStorage.setItem('mychronicle_book_orientation', name);
-                localStorage.setItem('mychronicle_book_size', size);
+                localStorage.setItem('urchronicle_book_orientation', name);
+                localStorage.setItem('urchronicle_book_size', size);
             });
         });
 
@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Extract number from the text (e.g. "50 pages" -> 50)
                 const text = card.querySelector('span').innerText;
                 const pages = parseInt(text) || 24;
-                localStorage.setItem('mychronicle_book_pages', pages.toString());
+                localStorage.setItem('urchronicle_book_pages', pages.toString());
             });
         });
     }
@@ -391,16 +391,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial UI state & Defaults sync
     const syncDefaults = () => {
         // Clear old orientation to force a new selection
-        localStorage.removeItem('mychronicle_book_orientation');
-        localStorage.removeItem('mychronicle_book_size');
+        localStorage.removeItem('urchronicle_book_orientation');
+        localStorage.removeItem('urchronicle_book_size');
 
         const activePageCard = document.querySelector('.thick-card.active');
         if (activePageCard) {
             const text = activePageCard.querySelector('span').innerText;
-            localStorage.setItem('mychronicle_book_pages', (parseInt(text) || 24).toString());
+            localStorage.setItem('urchronicle_book_pages', (parseInt(text) || 24).toString());
         }
     };
     syncDefaults();
 
     updateCartUI();
 });
+
+

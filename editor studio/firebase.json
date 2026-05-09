@@ -17,9 +17,11 @@
     "providers": {
       "emailPassword": true,
       "googleSignIn": {
-        "oAuthBrandDisplayName": "MyChronicles",
+        "oAuthBrandDisplayName": "urchronicles",
         "supportEmail": "riteshkayate18@gmail.com"
       }
     }
   }
 }
+
+

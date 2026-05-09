@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let uploadedPhotos = [];
     const urlParams = new URLSearchParams(window.location.search);
-    let totalPages = parseInt(urlParams.get('pages')) || parseInt(localStorage.getItem('mychronicle_book_pages')) || 24;
+    let totalPages = parseInt(urlParams.get('pages')) || parseInt(localStorage.getItem('urchronicle_book_pages')) || 24;
     let currentActiveSpread = null;
     let currentActiveIndex = 0;
 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const selectedOrient = localStorage.getItem('mychronicle_book_orientation') || 'Portrait';
+    const selectedOrient = localStorage.getItem('urchronicle_book_orientation') || 'Portrait';
     const config = BOOK_CONFIGS[selectedOrient] || BOOK_CONFIGS['Portrait'];
     
     // Inject the aspect ratio into CSS
@@ -483,12 +483,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (label === 'Page 1') {
             // Watermark on Left Page (Blank)
             watermarkHTML = `<div class="page-watermark" style="position:absolute; left:0; top:0; width:50%; height:100%; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:1;">
-                                <img src="logo_mychronicle.png" style="width:90%; height:auto; opacity:0.5;">
+                                <img src="logo_urchronicle.png" style="width:90%; height:auto; opacity:0.5;">
                              </div>`;
         } else if (label === `Page ${totalPages}`) {
             // Watermark on Right Page (Blank)
             watermarkHTML = `<div class="page-watermark" style="position:absolute; left:50%; top:0; width:50%; height:100%; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:1;">
-                                <img src="logo_mychronicle.png" style="width:90%; height:auto; opacity:0.5;">
+                                <img src="logo_urchronicle.png" style="width:90%; height:auto; opacity:0.5;">
                              </div>`;
         }
 
@@ -638,14 +638,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load saved design title if they have an account / returning session
     if (designTitleInput) {
-        const savedTitle = localStorage.getItem('mychronicle_design_name');
+        const savedTitle = localStorage.getItem('urchronicle_design_name');
         if (savedTitle) {
             designTitleInput.value = savedTitle;
         }
 
         // Auto-save title as the user types
         designTitleInput.addEventListener('input', (e) => {
-            localStorage.setItem('mychronicle_design_name', e.target.value);
+            localStorage.setItem('urchronicle_design_name', e.target.value);
         });
     }
 
@@ -1107,7 +1107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             status: 'designing',
             last_active: firebase.firestore.FieldValue.serverTimestamp(),
             page_count: document.querySelectorAll('.spread-wrap').length,
-            orientation: localStorage.getItem('mychronicle_book_orientation') || 'N/A'
+            orientation: localStorage.getItem('urchronicle_book_orientation') || 'N/A'
         };
 
         try {
@@ -1147,7 +1147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 1. Initialize PDF based on selected book orientation
             const { jsPDF } = window.jspdf;
-            const orientationStr = localStorage.getItem('mychronicle_book_orientation') || 'Square';
+            const orientationStr = localStorage.getItem('urchronicle_book_orientation') || 'Square';
             let pdfWidth = 210;
             let pdfHeight = 210;
             let pdfFormat = [210, 210]; // default square
@@ -1274,7 +1274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Upload to Cloudinary with Progress Tracking
             const formData = new FormData();
             formData.append('file', pdfBlob, `order_${auth.currentUser.uid}_${Date.now()}.pdf`);
-            formData.append('upload_preset', 'mychronicle');
+            formData.append('upload_preset', 'urchronicle');
 
             const downloadURL = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -1323,9 +1323,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // 7. Update local cart for consistency
-            let cart = JSON.parse(localStorage.getItem('mychronicle_cart')) || [];
+            let cart = JSON.parse(localStorage.getItem('urchronicle_cart')) || [];
             cart.push({ id: 'order-' + Date.now(), title: 'Custom Designed Photobook', price: 3499, quantity: 1, pdf_url: downloadURL });
-            localStorage.setItem('mychronicle_cart', JSON.stringify(cart));
+            localStorage.setItem('urchronicle_cart', JSON.stringify(cart));
 
             statusText.innerText = 'Order Placed Successfully!';
             
@@ -2247,4 +2247,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+
 
